@@ -1,9 +1,8 @@
 package com.example.card.Controller;
 
 import com.example.card.Model.Card;
-import com.example.card.Repository.CardRepository;
+import com.example.card.Service.CardService;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,30 +16,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/card")
 public class CardController {
 
-    private final CardRepository cardRepository;
+    private final CardService cardService;
 
-    public CardController(CardRepository cardRepository) {
-        this.cardRepository = cardRepository;
+    public CardController(CardService cardService) {
+        this.cardService = cardService;
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<Card>> getAllCards() {
-        return ResponseEntity.ok(cardRepository.findAll());
+        return ResponseEntity.ok(cardService.getAllCards());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Card> getCardById(@PathVariable("id") Long id) {
-        return cardRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return cardService.getCardById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<Card> getCardByName(@PathVariable("name") String name) {
-        return cardRepository.findByCardName(name).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return cardService.getCardByName(name).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/top4-rating-cards")
     public ResponseEntity<List<Card>> getTop4RatingCards() {
-        List<Card> cards = cardRepository.findTop4ByOrderByRatingDesc();
+        List<Card> cards = cardService.getTop4ByRating();
         if (cards.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -49,7 +48,7 @@ public class CardController {
 
     @GetMapping("/type/{type}")
     public ResponseEntity<List<Card>> getCardByType(@PathVariable("type") String type) {
-        List<Card> cards = cardRepository.findByCardType(type);
+        List<Card> cards = cardService.getCardsByType(type);
         if (cards.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -58,7 +57,7 @@ public class CardController {
 
     @GetMapping("/bank/{bank}")
     public ResponseEntity<List<Card>> getCardByBank(@PathVariable("bank") String bank) {
-        List<Card> cards = cardRepository.findByCardBank(bank);
+        List<Card> cards = cardService.getCardsByBank(bank);
         if (cards.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -67,7 +66,7 @@ public class CardController {
 
     @GetMapping("/has-annual-fee/{hasAnnualFee}")
     public ResponseEntity<List<Card>> getCardByHasAnnualFee(@PathVariable("hasAnnualFee") boolean hasAnnualFee) {
-        List<Card> cards = cardRepository.findByHasAnnualFee(hasAnnualFee);
+        List<Card> cards = cardService.getCardsByHasAnnualFee(hasAnnualFee);
         if (cards.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -76,40 +75,14 @@ public class CardController {
 
     @PostMapping("/add")
     public ResponseEntity<Card> addCard(@RequestBody Card card) {
-        Card savedCard = cardRepository.save(card);
+        Card savedCard = cardService.addCard(card);
         return ResponseEntity.ok(savedCard);
     }
 
     @PutMapping("/update/{name}")
     public ResponseEntity<Card> updateCardByName(@PathVariable("name") String name, @RequestBody Card updatedCard) {
-        Optional<Card> existingCard = cardRepository.findByCardName(name);
-        if (existingCard.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Card cardToUpdate = existingCard.get();
-        cardToUpdate.setCardName(updatedCard.getCardName());
-        cardToUpdate.setCardType(updatedCard.getCardType());
-        cardToUpdate.setCardBank(updatedCard.getCardBank());
-        cardToUpdate.setHasAnnualFee(updatedCard.isHasAnnualFee());
-        cardToUpdate.setAnnualFee(updatedCard.getAnnualFee());
-        cardToUpdate.setRating(updatedCard.getRating());
-        cardToUpdate.setBonus(updatedCard.getBonus());
-        cardToUpdate.setBonusSpend(updatedCard.getBonusSpend());
-        cardToUpdate.setCashbackFlat(updatedCard.getCashbackFlat());
-        cardToUpdate.setCashbackTravel(updatedCard.getCashbackTravel());
-        cardToUpdate.setCashbackDining(updatedCard.getCashbackDining());
-        cardToUpdate.setCashbackGrocery(updatedCard.getCashbackGrocery());
-        cardToUpdate.setCashbackGas(updatedCard.getCashbackGas());
-        cardToUpdate.setCashbackPharmacy(updatedCard.getCashbackPharmacy());
-        cardToUpdate.setCashbackLyft(updatedCard.getCashbackLyft());
-        cardToUpdate.setCashbackOfficeSupply(updatedCard.getCashbackOfficeSupply());
-        cardToUpdate.setCashbackServices(updatedCard.getCashbackServices());
-        cardToUpdate.setCashbackBrand(updatedCard.getCashbackBrand());
-        cardToUpdate.setCashbackOther(updatedCard.getCashbackOther());
-        cardToUpdate.setCreditScore(updatedCard.getCreditScore());
-
-        Card savedCard = cardRepository.save(cardToUpdate);
-        return ResponseEntity.ok(savedCard);
+        return cardService.updateCardByName(name, updatedCard)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
