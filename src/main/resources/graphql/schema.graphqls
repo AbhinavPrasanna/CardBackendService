@@ -1,0 +1,77 @@
+type Card {
+  id: ID!
+  cardName: String!
+  cardType: String!
+  cardBank: String!
+  hasAnnualFee: Boolean!
+  annualFee: Int!
+  rating: Float!
+  bonus: Float!
+  bonusSpend: Float!
+  cashbackFlat: Float!
+  cashbackTravel: Float!
+  cashbackDining: Float!
+  cashbackGrocery: Float!
+  cashbackGas: Float!
+  cashbackPharmacy: Float!
+  cashbackLyft: Float!
+  cashbackOfficeSupply: Float!
+  cashbackServices: Float!
+  cashbackBrand: Float!
+  cashbackOther: Float!
+  creditScore: Int!
+  imageS3Key: String
+  imageSourceUrl: String
+}
+
+input CardInput {
+  cardName: String!
+  cardType: String!
+  cardBank: String!
+  hasAnnualFee: Boolean!
+  annualFee: Int!
+  rating: Float!
+  bonus: Float!
+  bonusSpend: Float!
+  cashbackFlat: Float!
+  cashbackTravel: Float!
+  cashbackDining: Float!
+  cashbackGrocery: Float!
+  cashbackGas: Float!
+  cashbackPharmacy: Float!
+  cashbackLyft: Float!
+  cashbackOfficeSupply: Float!
+  cashbackServices: Float!
+  cashbackBrand: Float!
+  cashbackOther: Float!
+  creditScore: Int!
+  imageS3Key: String
+  imageSourceUrl: String
+}
+
+type CardPage {
+  content: [Card!]!
+  page: Int!
+  size: Int!
+  totalElements: Int!
+  totalPages: Int!
+  hasNext: Boolean!
+}
+
+type Query {
+  cards(
+    page: Int = 0
+    size: Int = 20
+    bank: String
+    type: String
+    hasAnnualFee: Boolean
+  ): CardPage!
+  cardById(id: ID!): Card
+  cardByName(name: String!): Card
+  topRatedCards(limit: Int = 4): [Card!]!
+}
+
+type Mutation {
+  addCard(input: CardInput!): Card!
+  updateCardByName(name: String!, input: CardInput!): Card
+}

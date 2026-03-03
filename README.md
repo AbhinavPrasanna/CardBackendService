@@ -146,6 +146,149 @@ curl -X PUT "http://localhost:8080/card/update/Chase%20Freedom%20Unlimited" \
   }'
 ```
 
+## GraphQL API
+
+GraphQL endpoint:
+- `POST http://localhost:8080/graphql`
+
+### GraphQL Queries
+
+- Paginated cards with optional filters:
+
+```graphql
+query CardsPage {
+  cards(page: 0, size: 20, bank: "Chase", type: "travel", hasAnnualFee: true) {
+    page
+    size
+    totalElements
+    totalPages
+    hasNext
+    content {
+      id
+      cardName
+      cardBank
+      cardType
+      imageS3Key
+      imageSourceUrl
+    }
+  }
+}
+```
+
+- Card by id:
+
+```graphql
+query CardById {
+  cardById(id: 1) {
+    id
+    cardName
+    cardBank
+    imageS3Key
+    imageSourceUrl
+  }
+}
+```
+
+- Card by name:
+
+```graphql
+query CardByName {
+  cardByName(name: "Chase Freedom Unlimited") {
+    id
+    cardName
+    cardType
+    cardBank
+  }
+}
+```
+
+- Top rated cards:
+
+```graphql
+query TopRated {
+  topRatedCards(limit: 4) {
+    id
+    cardName
+    rating
+  }
+}
+```
+
+### GraphQL Mutations
+
+- Add a card:
+
+```graphql
+mutation AddCard {
+  addCard(input: {
+    cardName: "Sample GraphQL Card"
+    cardType: "cashback"
+    cardBank: "Sample Bank"
+    hasAnnualFee: false
+    annualFee: 0
+    rating: 4.1
+    bonus: 10000
+    bonusSpend: 500
+    cashbackFlat: 1.5
+    cashbackTravel: 0.0
+    cashbackDining: 0.0
+    cashbackGrocery: 0.0
+    cashbackGas: 0.0
+    cashbackPharmacy: 0.0
+    cashbackLyft: 0.0
+    cashbackOfficeSupply: 0.0
+    cashbackServices: 0.0
+    cashbackBrand: 0.0
+    cashbackOther: 1.0
+    creditScore: 670
+    imageS3Key: ""
+    imageSourceUrl: ""
+  }) {
+    id
+    cardName
+  }
+}
+```
+
+- Update a card by name:
+
+```graphql
+mutation UpdateCard {
+  updateCardByName(
+    name: "Sample GraphQL Card",
+    input: {
+      cardName: "Sample GraphQL Card"
+      cardType: "cashback"
+      cardBank: "Sample Bank"
+      hasAnnualFee: false
+      annualFee: 0
+      rating: 4.3
+      bonus: 15000
+      bonusSpend: 1000
+      cashbackFlat: 2.0
+      cashbackTravel: 0.0
+      cashbackDining: 0.0
+      cashbackGrocery: 0.0
+      cashbackGas: 0.0
+      cashbackPharmacy: 0.0
+      cashbackLyft: 0.0
+      cashbackOfficeSupply: 0.0
+      cashbackServices: 0.0
+      cashbackBrand: 0.0
+      cashbackOther: 1.0
+      creditScore: 680
+      imageS3Key: "cards/sample/sample-graphql-card.png"
+      imageSourceUrl: "https://example.com/sample-graphql-card.png"
+    }
+  ) {
+    id
+    cardName
+    rating
+    imageS3Key
+  }
+}
+```
+
 ## Check table on RDS (PowerShell)
 
 1. Set the RDS host for this session:

@@ -4,6 +4,10 @@ import com.example.card.Model.Card;
 import com.example.card.Repository.CardRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,6 +45,30 @@ public class CardService {
 
     public List<Card> getTop4ByRating() {
         return cardRepository.findTop4ByOrderByRatingDesc();
+    }
+
+    public List<Card> getTopRatedCards(int limit) {
+        Pageable pageable = PageRequest.of(0, Math.max(1, limit));
+        return cardRepository.findAll((root, query, cb) -> cb.conjunction(), pageable).getContent();
+    }
+
+    public Page<Card> getCardsPage(int page, int size, String bank, String type, Boolean hasAnnualFee) {
+        int safePage = Math.max(0, page);
+        int safeSize = Math.max(1, size);
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        Specification<Card> spec = Specification.where(null);
+        if (bank != null && !bank.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("cardBank"), bank));
+        }
+        if (type != null && !type.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("cardType"), type));
+        }
+        if (hasAnnualFee != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("hasAnnualFee"), hasAnnualFee));
+        }
+
+        return cardRepository.findAll(spec, pageable);
     }
 
     public Card addCard(Card card) {
