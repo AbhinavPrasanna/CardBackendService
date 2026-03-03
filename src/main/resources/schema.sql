@@ -21,3 +21,9 @@ CREATE TABLE IF NOT EXISTS public.card (
     cashback_other DOUBLE PRECISION,
     credit_score INTEGER
 );
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS image_s3_key TEXT;
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS image_source_url TEXT;
