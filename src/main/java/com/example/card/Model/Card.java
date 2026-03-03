@@ -80,6 +80,12 @@ public class Card {
     @Column(name = "credit_score")
     private int creditScore;
 
+    @Column(name = "image_s3_key")
+    private String imageS3Key;
+
+    @Column(name = "image_source_url")
+    private String imageSourceUrl;
+
     public long getId() {
         return id;
     }
@@ -246,5 +252,21 @@ public class Card {
 
     public void setCreditScore(int creditScore) {
         this.creditScore = creditScore;
+    }
+
+    public String getImageS3Key() {
+        return imageS3Key;
+    }
+
+    public void setImageS3Key(String imageS3Key) {
+        this.imageS3Key = imageS3Key;
+    }
+
+    public String getImageSourceUrl() {
+        return imageSourceUrl;
+    }
+
+    public void setImageSourceUrl(String imageSourceUrl) {
+        this.imageSourceUrl = imageSourceUrl;
     }
 }
