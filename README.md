@@ -13,6 +13,7 @@ Notes:
 - `.env` should stay local and never be committed.
 - The app reads `RDSHOST`, `RDSUSER`, `RDSPASSWORD`, `PGSSLMODE`, and `PGSSLROOTCERT` from environment variables.
 
+
 ## Cards Database Structure
 
 The backend uses PostgreSQL table `public.card`.

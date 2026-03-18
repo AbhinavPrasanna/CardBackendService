@@ -22,6 +22,7 @@ type Card {
   creditScore: Int!
   imageS3Key: String
   imageSourceUrl: String
+  relatedCardsByBank(limit: Int = 5): [Card!]!
 }
 
 input CardInput {
@@ -67,6 +68,7 @@ type Query {
     hasAnnualFee: Boolean
   ): CardPage!
   cardById(id: ID!): Card
+  cardsByIds(ids: [ID!]!): [Card]!
   cardByName(name: String!): Card
   topRatedCards(limit: Int = 4): [Card!]!
 }
