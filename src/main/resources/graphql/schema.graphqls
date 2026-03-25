@@ -59,6 +59,43 @@ type CardPage {
   hasNext: Boolean!
 }
 
+input SpendingProfileInput {
+  creditScore: Int!
+  monthlyTravel: Float!
+  monthlyDining: Float!
+  monthlyGrocery: Float!
+  monthlyGas: Float!
+  monthlyPharmacy: Float!
+  monthlyLyft: Float!
+  monthlyOfficeSupply: Float!
+  monthlyServices: Float!
+  monthlyBrand: Float!
+  monthlyOther: Float!
+}
+
+type CategoryAssignment {
+  category: String!
+  monthlySpend: Float!
+  effectiveRate: Float!
+  annualCashback: Float!
+}
+
+type CardLineupEntry {
+  card: Card!
+  assignedCategories: [CategoryAssignment!]!
+  annualCashback: Float!
+  annualFee: Int!
+  netAnnualValue: Float!
+}
+
+type CardLineupResult {
+  entries: [CardLineupEntry!]!
+  totalAnnualCashback: Float!
+  totalAnnualFees: Int!
+  totalNetAnnualValue: Float!
+  totalMonthlySpend: Float!
+}
+
 type Query {
   cards(
     page: Int = 0
@@ -71,6 +108,7 @@ type Query {
   cardsByIds(ids: [ID!]!): [Card]!
   cardByName(name: String!): Card
   topRatedCards(limit: Int = 4): [Card!]!
+  optimizeCardLineup(input: SpendingProfileInput!): CardLineupResult!
 }
 
 type Mutation {

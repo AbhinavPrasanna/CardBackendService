@@ -1,6 +1,7 @@
 package com.example.card.Graphql;
 
 import com.example.card.Model.Card;
+import com.example.card.Service.CardLineupOptimizerService;
 import com.example.card.Service.CardService;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
@@ -18,9 +19,12 @@ import org.springframework.stereotype.Controller;
 public class CardGraphqlController {
 
   private final CardService cardService;
+  private final CardLineupOptimizerService cardLineupOptimizerService;
 
-  public CardGraphqlController(CardService cardService) {
+  public CardGraphqlController(
+      CardService cardService, CardLineupOptimizerService cardLineupOptimizerService) {
     this.cardService = cardService;
+    this.cardLineupOptimizerService = cardLineupOptimizerService;
   }
 
   @QueryMapping
@@ -89,6 +93,11 @@ public class CardGraphqlController {
                     .filter(related -> related.getId() != card.getId())
                     .limit(safeLimit)
                     .collect(Collectors.toList()));
+  }
+
+  @QueryMapping
+  public CardLineupResult optimizeCardLineup(@Argument SpendingProfileInput input) {
+    return cardLineupOptimizerService.optimizeLineup(input);
   }
 
   @MutationMapping

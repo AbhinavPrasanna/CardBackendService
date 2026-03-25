@@ -37,3 +37,11 @@ build/
 
 ### Lambda build artifacts ###
 lambda/build/
+
+### Local data and debug outputs ###
+card.csv
+event.json
+lambda/
+out.json
+out_async.json
+response.json
