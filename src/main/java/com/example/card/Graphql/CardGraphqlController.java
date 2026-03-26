@@ -138,6 +138,10 @@ public class CardGraphqlController {
     public double cashbackServices;
     public double cashbackBrand;
     public double cashbackOther;
+    public boolean cashbackChoiceHotels;
+    public boolean cashbackHyattHotels;
+    public boolean cashbackHiltonHotels;
+    public boolean cashbackMarriottHotels;
     public int creditScore;
     public String imageS3Key;
     public String imageSourceUrl;
@@ -163,6 +167,10 @@ public class CardGraphqlController {
       card.setCashbackServices(cashbackServices);
       card.setCashbackBrand(cashbackBrand);
       card.setCashbackOther(cashbackOther);
+      card.setCashbackChoiceHotels(cashbackChoiceHotels);
+      card.setCashbackHyattHotels(cashbackHyattHotels);
+      card.setCashbackHiltonHotels(cashbackHiltonHotels);
+      card.setCashbackMarriottHotels(cashbackMarriottHotels);
       card.setCreditScore(creditScore);
       card.setImageS3Key(imageS3Key);
       card.setImageSourceUrl(imageSourceUrl);

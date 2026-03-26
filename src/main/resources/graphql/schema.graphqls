@@ -19,6 +19,10 @@ type Card {
   cashbackServices: Float!
   cashbackBrand: Float!
   cashbackOther: Float!
+  cashbackChoiceHotels: Boolean!
+  cashbackHyattHotels: Boolean!
+  cashbackHiltonHotels: Boolean!
+  cashbackMarriottHotels: Boolean!
   creditScore: Int!
   imageS3Key: String
   imageSourceUrl: String
@@ -45,6 +49,10 @@ input CardInput {
   cashbackServices: Float!
   cashbackBrand: Float!
   cashbackOther: Float!
+  cashbackChoiceHotels: Boolean!
+  cashbackHyattHotels: Boolean!
+  cashbackHiltonHotels: Boolean!
+  cashbackMarriottHotels: Boolean!
   creditScore: Int!
   imageS3Key: String
   imageSourceUrl: String

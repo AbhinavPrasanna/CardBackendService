@@ -137,6 +137,10 @@ public class CardService {
     cardToUpdate.setCashbackServices(updatedCard.getCashbackServices());
     cardToUpdate.setCashbackBrand(updatedCard.getCashbackBrand());
     cardToUpdate.setCashbackOther(updatedCard.getCashbackOther());
+    cardToUpdate.setCashbackChoiceHotels(updatedCard.isCashbackChoiceHotels());
+    cardToUpdate.setCashbackHyattHotels(updatedCard.isCashbackHyattHotels());
+    cardToUpdate.setCashbackHiltonHotels(updatedCard.isCashbackHiltonHotels());
+    cardToUpdate.setCashbackMarriottHotels(updatedCard.isCashbackMarriottHotels());
     cardToUpdate.setCreditScore(updatedCard.getCreditScore());
 
     return Optional.of(cardRepository.save(cardToUpdate));

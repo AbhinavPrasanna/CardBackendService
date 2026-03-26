@@ -77,6 +77,18 @@ public class Card {
   @Column(name = "cashback_other")
   private double cashbackOther;
 
+  @Column(name = "cashback_choice_hotels")
+  private boolean cashbackChoiceHotels;
+
+  @Column(name = "cashback_hyatt_hotels")
+  private boolean cashbackHyattHotels;
+
+  @Column(name = "cashback_hilton_hotels")
+  private boolean cashbackHiltonHotels;
+
+  @Column(name = "cashback_marriott_hotels")
+  private boolean cashbackMarriottHotels;
+
   @Column(name = "credit_score")
   private int creditScore;
 
@@ -244,6 +256,38 @@ public class Card {
 
   public void setCashbackOther(double cashbackOther) {
     this.cashbackOther = cashbackOther;
+  }
+
+  public boolean isCashbackChoiceHotels() {
+    return cashbackChoiceHotels;
+  }
+
+  public void setCashbackChoiceHotels(boolean cashbackChoiceHotels) {
+    this.cashbackChoiceHotels = cashbackChoiceHotels;
+  }
+
+  public boolean isCashbackHyattHotels() {
+    return cashbackHyattHotels;
+  }
+
+  public void setCashbackHyattHotels(boolean cashbackHyattHotels) {
+    this.cashbackHyattHotels = cashbackHyattHotels;
+  }
+
+  public boolean isCashbackHiltonHotels() {
+    return cashbackHiltonHotels;
+  }
+
+  public void setCashbackHiltonHotels(boolean cashbackHiltonHotels) {
+    this.cashbackHiltonHotels = cashbackHiltonHotels;
+  }
+
+  public boolean isCashbackMarriottHotels() {
+    return cashbackMarriottHotels;
+  }
+
+  public void setCashbackMarriottHotels(boolean cashbackMarriottHotels) {
+    this.cashbackMarriottHotels = cashbackMarriottHotels;
   }
 
   public int getCreditScore() {

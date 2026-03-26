@@ -19,6 +19,10 @@ CREATE TABLE IF NOT EXISTS public.card (
     cashback_services DOUBLE PRECISION,
     cashback_brand DOUBLE PRECISION,
     cashback_other DOUBLE PRECISION,
+    cashback_choice_hotels BOOLEAN NOT NULL DEFAULT FALSE,
+    cashback_hyatt_hotels BOOLEAN NOT NULL DEFAULT FALSE,
+    cashback_hilton_hotels BOOLEAN NOT NULL DEFAULT FALSE,
+    cashback_marriott_hotels BOOLEAN NOT NULL DEFAULT FALSE,
     credit_score INTEGER
 );
 
@@ -27,3 +31,40 @@ ADD COLUMN IF NOT EXISTS image_s3_key TEXT;
 
 ALTER TABLE public.card
 ADD COLUMN IF NOT EXISTS image_source_url TEXT;
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS cashback_choice_hotels BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS cashback_hyatt_hotels BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS cashback_hilton_hotels BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS cashback_marriott_hotels BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Normalize existing rows so hotel-brand flags are always populated.
+UPDATE public.card
+SET cashback_choice_hotels = FALSE,
+    cashback_hyatt_hotels = FALSE,
+    cashback_hilton_hotels = FALSE,
+    cashback_marriott_hotels = FALSE;
+
+-- Brand-specific hotel eligibility from card naming.
+UPDATE public.card
+SET cashback_choice_hotels = TRUE
+WHERE LOWER(card_name) LIKE '%choice%';
+
+UPDATE public.card
+SET cashback_hyatt_hotels = TRUE
+WHERE LOWER(card_name) LIKE '%hyatt%';
+
+UPDATE public.card
+SET cashback_hilton_hotels = TRUE
+WHERE LOWER(card_name) LIKE '%hilton%';
+
+UPDATE public.card
+SET cashback_marriott_hotels = TRUE
+WHERE LOWER(card_name) LIKE '%marriott%'
+   OR LOWER(card_name) LIKE '%bonvoy%';
