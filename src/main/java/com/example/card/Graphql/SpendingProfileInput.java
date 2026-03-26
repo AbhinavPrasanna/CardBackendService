@@ -13,6 +13,10 @@ public class SpendingProfileInput {
   private double monthlyServices;
   private double monthlyBrand;
   private double monthlyOther;
+  private boolean preferChoiceHotels;
+  private boolean preferHyattHotels;
+  private boolean preferHiltonHotels;
+  private boolean preferMarriottHotels;
 
   public int getCreditScore() {
     return creditScore;
@@ -100,6 +104,42 @@ public class SpendingProfileInput {
 
   public void setMonthlyOther(double monthlyOther) {
     this.monthlyOther = monthlyOther;
+  }
+
+  public boolean isPreferChoiceHotels() {
+    return preferChoiceHotels;
+  }
+
+  public void setPreferChoiceHotels(boolean preferChoiceHotels) {
+    this.preferChoiceHotels = preferChoiceHotels;
+  }
+
+  public boolean isPreferHyattHotels() {
+    return preferHyattHotels;
+  }
+
+  public void setPreferHyattHotels(boolean preferHyattHotels) {
+    this.preferHyattHotels = preferHyattHotels;
+  }
+
+  public boolean isPreferHiltonHotels() {
+    return preferHiltonHotels;
+  }
+
+  public void setPreferHiltonHotels(boolean preferHiltonHotels) {
+    this.preferHiltonHotels = preferHiltonHotels;
+  }
+
+  public boolean isPreferMarriottHotels() {
+    return preferMarriottHotels;
+  }
+
+  public void setPreferMarriottHotels(boolean preferMarriottHotels) {
+    this.preferMarriottHotels = preferMarriottHotels;
+  }
+
+  public boolean hasAnyHotelPreference() {
+    return preferChoiceHotels || preferHyattHotels || preferHiltonHotels || preferMarriottHotels;
   }
 
   public double getTotalMonthlySpend() {

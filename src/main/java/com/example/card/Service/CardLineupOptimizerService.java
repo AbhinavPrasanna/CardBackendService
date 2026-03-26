@@ -39,6 +39,11 @@ public class CardLineupOptimizerService {
     this.cardService = cardService;
   }
 
+  // Bonus multiplier applied to a card's marginal value when it matches the user's hotel preference.
+  private static final double HOTEL_PREFERENCE_BONUS = 1.25;
+  // Penalty multiplier applied when a card is hotel-brand locked to a chain the user did NOT select.
+  private static final double HOTEL_MISMATCH_PENALTY = 0.60;
+
   public CardLineupResult optimizeLineup(SpendingProfileInput input) {
     List<Card> allCards = cardService.getAllCards();
 
@@ -52,13 +57,16 @@ public class CardLineupOptimizerService {
     }
 
     Map<String, Double> monthlySpends = buildSpendMap(input);
-    List<Card> selectedCards = greedySelect(eligible, monthlySpends, LINEUP_SIZE);
+    List<Card> selectedCards = greedySelect(eligible, monthlySpends, LINEUP_SIZE, input);
 
-    return buildResult(selectedCards, monthlySpends, input.getTotalMonthlySpend());
+    return buildResult(selectedCards, monthlySpends, input.getTotalMonthlySpend(), input);
   }
 
   private List<Card> greedySelect(
-      List<Card> eligible, Map<String, Double> monthlySpends, int maxCards) {
+      List<Card> eligible,
+      Map<String, Double> monthlySpends,
+      int maxCards,
+      SpendingProfileInput input) {
     List<Card> selected = new ArrayList<>();
     Set<Long> selectedIds = new HashSet<>();
     double[] currentBestRates = new double[CATEGORIES.length];
@@ -76,7 +84,7 @@ public class CardLineupOptimizerService {
 
         double marginalCashback = 0;
         for (int c = 0; c < CATEGORIES.length; c++) {
-          double candidateRate = getEffectiveRate(candidate, CATEGORIES[c]);
+          double candidateRate = getEffectiveRate(candidate, CATEGORIES[c], input);
           double improvement = candidateRate - currentBestRates[c];
           if (improvement > 0) {
             double spend = monthlySpends.getOrDefault(CATEGORIES[c], 0.0);
@@ -86,6 +94,9 @@ public class CardLineupOptimizerService {
 
         double marginalNetValue =
             marginalCashback - (candidate.isHasAnnualFee() ? candidate.getAnnualFee() : 0);
+
+        // Apply hotel preference scoring if user expressed hotel preferences.
+        marginalNetValue = applyHotelPreferenceScore(marginalNetValue, candidate, input);
 
         if (marginalNetValue > bestMarginalValue) {
           bestMarginalValue = marginalNetValue;
@@ -101,7 +112,7 @@ public class CardLineupOptimizerService {
       selectedIds.add(bestCandidate.getId());
 
       for (int c = 0; c < CATEGORIES.length; c++) {
-        double rate = getEffectiveRate(bestCandidate, CATEGORIES[c]);
+        double rate = getEffectiveRate(bestCandidate, CATEGORIES[c], input);
         currentBestRates[c] = Math.max(currentBestRates[c], rate);
       }
     }
@@ -109,8 +120,58 @@ public class CardLineupOptimizerService {
     return selected;
   }
 
+  private double applyHotelPreferenceScore(
+      double baseValue, Card card, SpendingProfileInput input) {
+    if (!input.hasAnyHotelPreference()) {
+      return baseValue;
+    }
+
+    boolean cardIsChoiceOnly = card.isCashbackChoiceHotels()
+        && !card.isCashbackHyattHotels()
+        && !card.isCashbackHiltonHotels()
+        && !card.isCashbackMarriottHotels();
+    boolean cardIsHyattOnly = card.isCashbackHyattHotels()
+        && !card.isCashbackChoiceHotels()
+        && !card.isCashbackHiltonHotels()
+        && !card.isCashbackMarriottHotels();
+    boolean cardIsHiltonOnly = card.isCashbackHiltonHotels()
+        && !card.isCashbackChoiceHotels()
+        && !card.isCashbackHyattHotels()
+        && !card.isCashbackMarriottHotels();
+    boolean cardIsMarriottOnly = card.isCashbackMarriottHotels()
+        && !card.isCashbackChoiceHotels()
+        && !card.isCashbackHyattHotels()
+        && !card.isCashbackHiltonHotels();
+
+    boolean cardIsBrandLocked = cardIsChoiceOnly || cardIsHyattOnly
+        || cardIsHiltonOnly || cardIsMarriottOnly;
+
+    // Does this card match at least one of the user's preferred chains?
+    boolean matchesPreference =
+        (input.isPreferChoiceHotels() && card.isCashbackChoiceHotels())
+        || (input.isPreferHyattHotels() && card.isCashbackHyattHotels())
+        || (input.isPreferHiltonHotels() && card.isCashbackHiltonHotels())
+        || (input.isPreferMarriottHotels() && card.isCashbackMarriottHotels());
+
+    if (matchesPreference) {
+      // Boost cards that match a user's preferred hotel chain.
+      return baseValue * HOTEL_PREFERENCE_BONUS;
+    }
+
+    if (cardIsBrandLocked) {
+      // Penalize hotel-brand-locked cards that don't match any preferred chain:
+      // the user won't actually stay at that hotel chain so the cashback is less useful.
+      return baseValue * HOTEL_MISMATCH_PENALTY;
+    }
+
+    return baseValue;
+  }
+
   private CardLineupResult buildResult(
-      List<Card> selectedCards, Map<String, Double> monthlySpends, double totalMonthlySpend) {
+      List<Card> selectedCards,
+      Map<String, Double> monthlySpends,
+      double totalMonthlySpend,
+      SpendingProfileInput input) {
 
     Map<Long, List<CategoryAssignment>> cardAssignments = new HashMap<>();
     for (Card card : selectedCards) {
@@ -128,7 +189,7 @@ public class CardLineupOptimizerService {
       Card bestCard = null;
       double bestRate = 0;
       for (Card card : selectedCards) {
-        double rate = getEffectiveRate(card, category);
+        double rate = getEffectiveRate(card, category, input);
         if (rate > bestRate) {
           bestRate = rate;
           bestCard = card;
@@ -160,21 +221,36 @@ public class CardLineupOptimizerService {
         entries, totalAnnualCashback, totalAnnualFees, totalNetAnnualValue, totalMonthlySpend);
   }
 
-  private double getEffectiveRate(Card card, String category) {
-    double categoryRate =
-        switch (category) {
-          case "travel" -> card.getCashbackTravel();
-          case "dining" -> card.getCashbackDining();
-          case "grocery" -> card.getCashbackGrocery();
-          case "gas" -> card.getCashbackGas();
-          case "pharmacy" -> card.getCashbackPharmacy();
-          case "lyft" -> card.getCashbackLyft();
-          case "officeSupply" -> card.getCashbackOfficeSupply();
-          case "services" -> card.getCashbackServices();
-          case "brand" -> card.getCashbackBrand();
-          case "other" -> card.getCashbackOther();
-          default -> 0;
-        };
+  private double getEffectiveRate(Card card, String category, SpendingProfileInput input) {
+    double categoryRate;
+
+    if ("travel".equals(category) && card.isCashbackTravelIsHotelSpecific()) {
+      // This card's travel cashback only applies at a specific hotel chain.
+      // Only count the elevated travel rate if the user's selected hotel matches.
+      boolean hotelMatchesPreference =
+          (input.isPreferChoiceHotels() && card.isCashbackChoiceHotels())
+          || (input.isPreferHyattHotels() && card.isCashbackHyattHotels())
+          || (input.isPreferHiltonHotels() && card.isCashbackHiltonHotels())
+          || (input.isPreferMarriottHotels() && card.isCashbackMarriottHotels());
+
+      categoryRate = hotelMatchesPreference ? card.getCashbackTravel() : 0;
+    } else {
+      categoryRate =
+          switch (category) {
+            case "travel" -> card.getCashbackTravel();
+            case "dining" -> card.getCashbackDining();
+            case "grocery" -> card.getCashbackGrocery();
+            case "gas" -> card.getCashbackGas();
+            case "pharmacy" -> card.getCashbackPharmacy();
+            case "lyft" -> card.getCashbackLyft();
+            case "officeSupply" -> card.getCashbackOfficeSupply();
+            case "services" -> card.getCashbackServices();
+            case "brand" -> card.getCashbackBrand();
+            case "other" -> card.getCashbackOther();
+            default -> 0;
+          };
+    }
+
     return Math.max(categoryRate, card.getCashbackFlat());
   }
 

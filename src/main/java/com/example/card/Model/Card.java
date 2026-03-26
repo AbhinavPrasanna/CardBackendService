@@ -89,6 +89,9 @@ public class Card {
   @Column(name = "cashback_marriott_hotels")
   private boolean cashbackMarriottHotels;
 
+  @Column(name = "cashback_travel_is_hotel_specific")
+  private boolean cashbackTravelIsHotelSpecific;
+
   @Column(name = "credit_score")
   private int creditScore;
 
@@ -288,6 +291,14 @@ public class Card {
 
   public void setCashbackMarriottHotels(boolean cashbackMarriottHotels) {
     this.cashbackMarriottHotels = cashbackMarriottHotels;
+  }
+
+  public boolean isCashbackTravelIsHotelSpecific() {
+    return cashbackTravelIsHotelSpecific;
+  }
+
+  public void setCashbackTravelIsHotelSpecific(boolean cashbackTravelIsHotelSpecific) {
+    this.cashbackTravelIsHotelSpecific = cashbackTravelIsHotelSpecific;
   }
 
   public int getCreditScore() {

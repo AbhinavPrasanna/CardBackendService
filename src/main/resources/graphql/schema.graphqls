@@ -23,6 +23,7 @@ type Card {
   cashbackHyattHotels: Boolean!
   cashbackHiltonHotels: Boolean!
   cashbackMarriottHotels: Boolean!
+  cashbackTravelIsHotelSpecific: Boolean!
   creditScore: Int!
   imageS3Key: String
   imageSourceUrl: String
@@ -53,6 +54,7 @@ input CardInput {
   cashbackHyattHotels: Boolean!
   cashbackHiltonHotels: Boolean!
   cashbackMarriottHotels: Boolean!
+  cashbackTravelIsHotelSpecific: Boolean!
   creditScore: Int!
   imageS3Key: String
   imageSourceUrl: String
@@ -79,6 +81,10 @@ input SpendingProfileInput {
   monthlyServices: Float!
   monthlyBrand: Float!
   monthlyOther: Float!
+  preferChoiceHotels: Boolean
+  preferHyattHotels: Boolean
+  preferHiltonHotels: Boolean
+  preferMarriottHotels: Boolean
 }
 
 type CategoryAssignment {

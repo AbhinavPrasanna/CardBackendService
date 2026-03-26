@@ -44,6 +44,9 @@ ADD COLUMN IF NOT EXISTS cashback_hilton_hotels BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE public.card
 ADD COLUMN IF NOT EXISTS cashback_marriott_hotels BOOLEAN NOT NULL DEFAULT FALSE;
 
+ALTER TABLE public.card
+ADD COLUMN IF NOT EXISTS cashback_travel_is_hotel_specific BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- Normalize existing rows so hotel-brand flags are always populated.
 UPDATE public.card
 SET cashback_choice_hotels = FALSE,
@@ -68,3 +71,19 @@ UPDATE public.card
 SET cashback_marriott_hotels = TRUE
 WHERE LOWER(card_name) LIKE '%marriott%'
    OR LOWER(card_name) LIKE '%bonvoy%';
+
+-- Mark hotel co-branded cards whose travel cashback only applies at that specific hotel chain.
+UPDATE public.card
+SET cashback_travel_is_hotel_specific = TRUE
+WHERE cashback_choice_hotels = TRUE
+   OR cashback_hyatt_hotels = TRUE
+   OR cashback_hilton_hotels = TRUE
+   OR cashback_marriott_hotels = TRUE;
+
+-- General travel cards earn cashback on all travel, not hotel-specific.
+UPDATE public.card
+SET cashback_travel_is_hotel_specific = FALSE
+WHERE cashback_choice_hotels = FALSE
+  AND cashback_hyatt_hotels = FALSE
+  AND cashback_hilton_hotels = FALSE
+  AND cashback_marriott_hotels = FALSE;
